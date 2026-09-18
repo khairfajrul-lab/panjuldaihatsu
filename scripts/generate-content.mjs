@@ -1,0 +1,11 @@
+import fs from "node:fs";
+import path from "node:path";
+import { parse } from "yaml";
+const root=process.cwd(), dir=path.join(root,"content");
+const site=parse(fs.readFileSync(path.join(dir,"site.yml"),"utf8"));
+const files=fs.readdirSync(path.join(dir,"vehicles")).filter(f=>f.endsWith(".yml")).sort();
+const vehicles=files.map(f=>parse(fs.readFileSync(path.join(dir,"vehicles",f),"utf8")));
+const importMap={"/uploads/granmax.jpg":"granmaxImg","/uploads/ayla.jpg":"aylaImg","/uploads/sigra.jpg":"sigraImg","/uploads/terios.jpg":"teriosImg","/uploads/xenia.jpg":"xeniaImg","/uploads/rocky.jpg":"rockyImg"};
+const imports=['granmax','ayla','sigra','terios','xenia','rocky'].map(n=>`import ${n}Img from "@/assets/${n}.jpg";`).join('\n');
+const out=`// AUTO-GENERATED. Edit content/site.yml and content/vehicles/*.yml instead.\n${imports}\n\nexport const SALES_NAME=${JSON.stringify(site.sales_name)};\nexport const WHATSAPP_NUMBER=${JSON.stringify(String(site.whatsapp_number))};\nexport const SITE_CONFIG=${JSON.stringify(site,null,2)};\nexport function waLink(message:string){return \`https://wa.me/\${WHATSAPP_NUMBER}?text=\${encodeURIComponent(message)}\`;}\nexport const WA_DEFAULT_MESSAGE="Halo Kak Panjul, saya mau tanya mobil Daihatsu.";\nexport function waCarMessage(carName:string){return \`Halo Kak Panjul, saya mau tanya \${carName}. Bisa dibantu info harga dan cicilannya?\`;}\nexport interface Vehicle{slug:string;name:string;category:string;description:string;price:string;image:string;highlights:string[];transmissions:string[];colors:string[]}\nconst imageMap:Record<string,string>={${Object.entries(importMap).map(([k,v])=>JSON.stringify(k)+':'+v).join(',')}};\nexport const vehicles:Vehicle[]=${JSON.stringify(vehicles)}.map(v=>({...v,image:imageMap[v.image]??v.image}));\n`;
+fs.writeFileSync(path.join(root,"src/data/vehicles.ts"),out);

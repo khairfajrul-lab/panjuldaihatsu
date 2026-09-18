@@ -1,0 +1,19 @@
+slug: new-rocky
+name: NEW ROCKY
+category: SUV
+description: SUV compact dengan tampilan sporty dan modern, cocok untuk pengguna yang menginginkan kendaraan stylish untuk aktivitas sehari-hari.
+price: Mulai dari Rp XX.XXX.XXX
+image: /uploads/rocky.jpg
+highlights:
+  - Desain sporty dengan pilihan two-tone
+  - Mesin turbo yang responsif
+  - Fitur keselamatan canggih
+  - Compact tapi tetap nyaman di dalam
+transmissions:
+  - Manual
+  - Automatic (CVT)
+colors:
+  - Merah Two-Tone
+  - Hitam
+  - Putih
+  - Kuning

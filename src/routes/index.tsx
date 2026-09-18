@@ -1,22 +1,24 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, CheckCircle2, HandHeart, MessageCircle, Sparkles, Wallet } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import heroCar from "@/assets/hero-car.jpg";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { WhatsAppFloat } from "@/components/WhatsAppFloat";
-import { vehicles, waLink, WA_DEFAULT_MESSAGE } from "@/data/vehicles";
+import { vehicles as fallbackVehicles, WA_DEFAULT_MESSAGE, SITE_CONFIG } from "@/data/vehicles";
+import { getPublicSite, getPublicVehicles, type CmsSiteSettings, type CmsVehicle } from "@/lib/cms";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Panjul Daihatsu — Temukan Mobil Daihatsu yang Cocok untuk Kamu" },
+      { title: `Panjul Daihatsu — ${SITE_CONFIG.hero_title}` },
       {
         name: "description",
         content:
           "Pilihan mobil Daihatsu terbaru: Gran Max, Ayla, Sigra, Terios, Xenia, Rocky. Konsultasi gratis via WhatsApp bersama Panjul.",
       },
-      { property: "og:title", content: "Panjul Daihatsu — Temukan Mobil Daihatsu yang Cocok untuk Kamu" },
+      { property: "og:title", content: `Panjul Daihatsu — ${SITE_CONFIG.hero_title}` },
       {
         property: "og:description",
         content: "Proses pembelian mudah dan cepat, dibantu langsung oleh Panjul Daihatsu.",
@@ -50,6 +52,12 @@ const reasons = [
 ];
 
 function Index() {
+  const [vehicles, setVehicles] = useState<CmsVehicle[]>(fallbackVehicles);
+  const [site, setSite] = useState<CmsSiteSettings>(SITE_CONFIG as CmsSiteSettings);
+  useEffect(() => {
+    Promise.all([getPublicVehicles(), getPublicSite()]).then(([cars, settings]) => { setVehicles(cars); setSite(settings); }).catch(() => {});
+  }, []);
+  const waLink = (message: string) => `https://wa.me/${site.whatsapp_number}?text=${encodeURIComponent(message)}`;
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
@@ -59,12 +67,10 @@ function Index() {
         <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-16 sm:px-6 md:grid-cols-2 md:py-24">
           <div>
             <h1 className="text-3xl leading-tight font-extrabold tracking-tight sm:text-4xl md:text-5xl">
-              Temukan Mobil Daihatsu yang{" "}
-              <span className="text-primary">Cocok untuk Kamu</span>
+              {site.hero_title}
             </h1>
             <p className="mt-5 max-w-lg text-base text-background/75">
-              Pilihan mobil Daihatsu terbaru dengan proses pembelian yang mudah, cepat,
-              dan dibantu langsung oleh Panjul Daihatsu.
+              {site.hero_subtitle}
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <a

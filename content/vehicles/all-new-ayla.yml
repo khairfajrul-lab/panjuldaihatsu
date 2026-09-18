@@ -1,0 +1,20 @@
+slug: all-new-ayla
+name: ALL NEW AYLA
+category: City Car
+description: City car yang praktis untuk aktivitas harian di perkotaan. Desain modern, nyaman digunakan dan cocok untuk kebutuhan mobilitas sehari-hari.
+price: Mulai dari Rp XX.XXX.XXX
+image: /uploads/ayla.jpg
+highlights:
+  - Bodi compact, gampang parkir di kota
+  - Irit bahan bakar untuk pemakaian harian
+  - Desain modern dan pilihan warna menarik
+  - Cocok untuk mobil pertama atau kendaraan harian
+transmissions:
+  - Manual
+  - Automatic
+colors:
+  - Kuning
+  - Putih
+  - Merah
+  - Silver
+  - Hitam

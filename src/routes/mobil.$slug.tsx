@@ -1,40 +1,38 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Check, MessageCircle } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { WhatsAppFloat } from "@/components/WhatsAppFloat";
-import { vehicles, waCarMessage, waLink } from "@/data/vehicles";
+import { vehicles as fallbackVehicles, waCarMessage, waLink as staticWaLink } from "@/data/vehicles";
+import { getPublicVehicles, getPublicSite, type CmsSiteSettings, type CmsVehicle } from "@/lib/cms";
 
 export const Route = createFileRoute("/mobil/$slug")({
-  loader: ({ params }) => {
-    const vehicle = vehicles.find((v) => v.slug === params.slug);
-    if (!vehicle) throw notFound();
-    return { vehicle };
-  },
-  head: ({ loaderData }) => {
-    if (!loaderData) {
-      return {
-        meta: [{ title: "Unit tidak ditemukan — Panjul Daihatsu" }, { name: "robots", content: "noindex" }],
-      };
-    }
-    const { vehicle } = loaderData;
-    const title = `${vehicle.name} — Panjul Daihatsu`;
-    return {
-      meta: [
-        { title },
-        { name: "description", content: vehicle.description },
-        { property: "og:title", content: title },
-        { property: "og:description", content: vehicle.description },
-      ],
-    };
-  },
+  loader: ({ params }) => ({ slug: params.slug }),
+  head: ({ loaderData }) => ({
+    meta: [
+      { title: `${loaderData?.slug ?? "Mobil"} — Panjul Daihatsu` },
+      { name: "description", content: "Detail mobil Daihatsu Panjul." },
+    ],
+  }),
   component: VehicleDetail,
 });
 
 function VehicleDetail() {
-  const { vehicle } = Route.useLoaderData();
+  const { slug } = Route.useLoaderData();
+  const fallback = fallbackVehicles.find((v) => v.slug === slug);
+  const [vehicle, setVehicle] = useState<CmsVehicle | undefined>(fallback);
+  const [site, setSite] = useState<CmsSiteSettings | null>(null);
+  useEffect(() => {
+    Promise.all([getPublicVehicles(), getPublicSite()]).then(([cars, settings]) => {
+      setVehicle(cars.find((v) => v.slug === slug));
+      setSite(settings);
+    }).catch(() => {});
+  }, [slug]);
+  if (!vehicle) return <div className="min-h-screen bg-background"><SiteHeader /><main className="mx-auto max-w-3xl px-4 py-20 text-center"><h1 className="text-2xl font-extrabold">Mobil tidak ditemukan</h1><Link to="/" className="mt-5 inline-flex rounded-xl bg-primary px-5 py-3 text-sm font-bold text-primary-foreground">Kembali ke website</Link></main><SiteFooter /></div>;
   const message = waCarMessage(vehicle.name);
+  const waLink = (text: string) => site ? `https://wa.me/${site.whatsapp_number}?text=${encodeURIComponent(text)}` : staticWaLink(text);
 
   return (
     <div className="min-h-screen bg-background">
